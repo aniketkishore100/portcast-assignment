@@ -1,11 +1,23 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCoinList } from "./services";
+import CoinTable from "./components/CoinTable";
 
-const App: React.FC = () => (
-  <div className="flex items-center justify-center h-screen bg-blue-100">
-    <h1 className="text-3xl font-bold text-blue-600">
-      Hello, Tailwind with React and TypeScript!
-    </h1>
-  </div>
-);
+const App: React.FC = () => {
+  const {
+    // isLoading: isCoinListDataLoading,
+    data: coinListData,
+    // isError: coinListError,
+  } = useQuery({
+    queryKey: ["coinList"],
+    queryFn: fetchCoinList,
+  });
+
+  return (
+    <div className="h-screen flex justify-center items-center w-screen">
+      {coinListData && <CoinTable coinsList={coinListData.data} />}
+    </div>
+  );
+};
 
 export default App;

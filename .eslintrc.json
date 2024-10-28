@@ -47,13 +47,14 @@
         "react/function-component-definition": [
           0
         ],
-        "import/no-relative-parent-imports": "error",
         "no-nested-ternary": [
           0
         ],
         "react/jsx-filename-extension":[0],
         "quotes": [0],
-        "comma-dangle": [0]
+        "comma-dangle": [0],
+        "implicit-arrow-linebreak": [0],
+        "react/prop-types": [0]
       },
     "ignorePatterns": [
     "tailwind.config.js",

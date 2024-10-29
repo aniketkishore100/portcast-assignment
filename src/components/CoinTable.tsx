@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { classNames } from "../helpers";
 import { CoinData } from "../types/api";
 
@@ -111,10 +112,10 @@ const CoinTable: React.FC<CoinTableProps> = ({ coinsList }) => {
                           coinIdx !== coinsList.length - 1
                             ? "border-b border-gray-200"
                             : "",
-                          "hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell"
+                          "hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell hover:underline"
                         )}
                       >
-                        {coin.name}
+                        <Link to={`/coin/${coin.id}`}>{coin.name}</Link>
                       </td>
                       <td
                         className={classNames(

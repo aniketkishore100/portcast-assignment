@@ -1,7 +1,7 @@
 import axios from "axios";
 import { CoinHistoryResponse, CoinListApiResponse } from "./types/api";
 
-export const fetchCoinList = async (favourites: string[]) => {
+export const fetchCoinList = async (favourites: string[], pageNumber: number) => {
   try {
     const response = await axios.get<CoinListApiResponse>(
       `https://api.coincap.io/v2/assets`,
@@ -9,7 +9,7 @@ export const fetchCoinList = async (favourites: string[]) => {
         params: (favourites.length > 0)
           ? { ids: favourites.join(",") } : {
             limit: 10,
-            offset: 0,
+            offset: (pageNumber - 1) * 10,
           },
       }
     );

@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCoinList } from "./services";
 import CoinTable from "./components/CoinTable";
+
+const LISTING_PAGE_NUMBER = 'page';
+const totalCount = 100;
 
 const CoinLisitng: React.FC = () => {
   const [favourites, setFavourites] = useState<string[]>(() => {
@@ -9,14 +12,34 @@ const CoinLisitng: React.FC = () => {
     return storedFavourites ? (JSON.parse(storedFavourites) as string[]) : [];
   });
   const [showFavourites, setShowFavourites] = useState<boolean>(false);
+  const [pageNumber, setPageNumber] = useState(parseInt(localStorage.getItem(LISTING_PAGE_NUMBER) || '1', 10),);
+
+  useEffect(() => {
+    localStorage.setItem(LISTING_PAGE_NUMBER, String(pageNumber));
+  }, [pageNumber]);
+
+  const goToNextPage = useCallback(() => {
+    const numberOfPages = Math.ceil(totalCount / 10);
+    if (pageNumber === numberOfPages) {
+      return;
+    }
+    setPageNumber((prev) => prev + 1);
+  }, [pageNumber]);
+
+  const goToPreviousPage = useCallback(() => {
+    if (pageNumber === 1) {
+      return;
+    }
+    setPageNumber((prev) => prev - 1);
+  }, [pageNumber]);
 
   const {
     // isLoading: isCoinListDataLoading,
     data: coinListData,
     // isError: coinListError,
   } = useQuery({
-    queryKey: ["coinList", showFavourites],
-    queryFn: () => fetchCoinList(showFavourites ? favourites : []),
+    queryKey: ["coinList", showFavourites, pageNumber],
+    queryFn: () => fetchCoinList(showFavourites ? favourites : [], pageNumber),
   });
 
   const toggleFavorite = (coinId: string) => {
@@ -38,7 +61,7 @@ const CoinLisitng: React.FC = () => {
             {showFavourites && 'Favourite '}Coins
           </h1>
           <p className="mt-2 text-sm text-gray-700">
-            A list of popular cryptocurrencies, including their name, symbol,
+            A list of {showFavourites ? 'your favourite' : 'popular'} cryptocurrencies, including their name, symbol,
             market cap, price.
           </p>
         </div>
@@ -53,6 +76,36 @@ const CoinLisitng: React.FC = () => {
         </div>
       </div>
       {coinListData && <CoinTable coinsList={coinListData.data} toggleFavorite={toggleFavorite} isFavourite={isFavourite} />}
+      {!showFavourites && (
+        <nav
+          aria-label="Pagination"
+          className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
+        >
+          <div className="hidden sm:block">
+            <p className="text-sm text-gray-700">
+              Showing <span className="font-medium">{(pageNumber - 1) * 10 + 1}</span> to <span className="font-medium">{(pageNumber - 1) * 10 + 10}</span> of{' '}
+              <span className="font-medium">{totalCount}</span> results
+            </p>
+          </div>
+          <div className="flex flex-1 justify-between sm:justify-end">
+            <button
+              type="button"
+              onClick={goToPreviousPage}
+              className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              onClick={goToNextPage}
+              className="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+            >
+              Next
+            </button>
+          </div>
+        </nav>
+      )}
+
     </div>
   );
 };

@@ -17,6 +17,11 @@ export interface CoinListApiResponse {
   data: CoinData[];
 }
 
+export interface CoinDetailApiResponse {
+  data: CoinData;
+  timestamp: number;
+}
+
 export interface CoinHistoryData {
   time: number;
   priceUsd: string;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CoinHistoryResponse, CoinListApiResponse } from "./types/api";
+import { CoinDetailApiResponse, CoinHistoryResponse, CoinListApiResponse } from "./types/api";
 
 export const fetchCoinList = async (favourites: string[], pageNumber: number) => {
   try {
@@ -20,7 +20,19 @@ export const fetchCoinList = async (favourites: string[], pageNumber: number) =>
   }
 };
 
-export const fetchCoinDetails = async (coinId: string) => {
+export const fetchCoinDetail = async (coinId: string) => {
+  try {
+    const response = await axios.get<CoinDetailApiResponse>(
+      `https://api.coincap.io/v2/assets/${coinId}`,
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching assets:", error);
+    throw error;
+  }
+};
+
+export const fetchCoinHistory = async (coinId: string) => {
   try {
     const end = Date.now();
 

@@ -70,7 +70,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ coinsList, toggleFavorite, isFavo
                       scope="col"
                       className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter w-[25%]"
                     >
-                      Market Cap in USD
+                      Market Cap(USD)
                     </th>
                     <th
                       scope="col"
@@ -115,7 +115,8 @@ const CoinTable: React.FC<CoinTableProps> = ({ coinsList, toggleFavorite, isFavo
                           "hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 lg:table-cell"
                         )}
                       >
-                        {realTimePrices[coin.id] || coin.priceUsd}
+                        {(realTimePrices[coin.id] && Number(realTimePrices[coin.id]).toFixed(2))
+                        || (coin.priceUsd && Number(coin.priceUsd).toFixed(2))}
                       </td>
                       <td
                         className={classNames(
@@ -125,7 +126,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ coinsList, toggleFavorite, isFavo
                           "whitespace-nowrap px-3 py-4 text-sm text-gray-500"
                         )}
                       >
-                        {coin.marketCapUsd}
+                        {coin.marketCapUsd && Number(coin.marketCapUsd).toFixed(2)}
                       </td>
                       <td
                         className={classNames(

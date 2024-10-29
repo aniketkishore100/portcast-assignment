@@ -1,7 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  useCallback, useEffect, useMemo, useState
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCoinList } from "./services";
 import CoinTable from "./components/CoinTable";
+import SortingDropdown from "./components/SortingDropdown";
 
 const LISTING_PAGE_NUMBER = 'page';
 const totalCount = 100;
@@ -11,6 +14,7 @@ const CoinLisitng: React.FC = () => {
     const storedFavourites = localStorage.getItem('favourites');
     return storedFavourites ? (JSON.parse(storedFavourites) as string[]) : [];
   });
+  const [selectedSortingOption, setSelectedSortingOption] = useState(localStorage.getItem('sorting') || 'None');
   const [showFavourites, setShowFavourites] = useState<boolean>(false);
   const [pageNumber, setPageNumber] = useState(parseInt(localStorage.getItem(LISTING_PAGE_NUMBER) || '1', 10),);
 
@@ -42,6 +46,26 @@ const CoinLisitng: React.FC = () => {
     queryFn: () => fetchCoinList(showFavourites ? favourites : [], pageNumber),
   });
 
+  const sortedCoinsList = useMemo(() => {
+    if (!coinListData?.data) return [];
+
+    if (selectedSortingOption === 'Symbol') {
+      return [...coinListData.data].sort((a, b) => {
+        const symbolA = a.symbol.toUpperCase();
+        const symbolB = b.symbol.toUpperCase();
+        return symbolA < symbolB ? -1 : symbolA > symbolB ? 1 : 0;
+      });
+    }
+    if (selectedSortingOption === 'Name') {
+      return [...coinListData.data].sort((a, b) => {
+        const nameA = a.name.toUpperCase();
+        const nameB = b.name.toUpperCase();
+        return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+      });
+    }
+    return coinListData?.data;
+  }, [coinListData, selectedSortingOption]);
+
   const toggleFavorite = (coinId: string) => {
     const updatedFavourites = favourites.includes(coinId)
       ? favourites.filter((id) => id !== coinId)
@@ -52,6 +76,11 @@ const CoinLisitng: React.FC = () => {
   };
 
   const isFavourite = (coinId: string) => favourites.includes(coinId);
+
+  const handleSortingOption = (option: string) => {
+    localStorage.setItem('sorting', option);
+    setSelectedSortingOption(option);
+  };
 
   return (
     <div className="h-screen  w-screen px-4 sm:px-6 lg:px-8">
@@ -66,6 +95,9 @@ const CoinLisitng: React.FC = () => {
           </p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <SortingDropdown selectedSortingOption={selectedSortingOption} handleSortingOption={handleSortingOption} />
+        </div>
+        <div className="mt-4 sm:ml-8 sm:mt-0 sm:flex-none">
           <button
             type="button"
             className=" block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -75,7 +107,7 @@ const CoinLisitng: React.FC = () => {
           </button>
         </div>
       </div>
-      {coinListData && <CoinTable coinsList={coinListData.data} toggleFavorite={toggleFavorite} isFavourite={isFavourite} />}
+      {coinListData && <CoinTable coinsList={sortedCoinsList} toggleFavorite={toggleFavorite} isFavourite={isFavourite} />}
       {!showFavourites && (
         <nav
           aria-label="Pagination"

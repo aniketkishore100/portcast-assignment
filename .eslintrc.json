@@ -61,6 +61,7 @@
     "ignorePatterns": [
     "tailwind.config.js",
     "postcss.config.js",
+    "jest.config.js",
     "reportWebVitals.ts"
     ],
     "plugins": ["@typescript-eslint"]

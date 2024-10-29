@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCoinList } from "./services";
 import CoinTable from "./components/CoinTable";
 import SortingDropdown from "./components/SortingDropdown";
+import Loader from "./components/Loader";
 
 const LISTING_PAGE_NUMBER = 'page';
 const totalCount = 100;
@@ -38,9 +39,8 @@ const CoinLisitng: React.FC = () => {
   }, [pageNumber]);
 
   const {
-    // isLoading: isCoinListDataLoading,
+    isLoading: isCoinListDataLoading,
     data: coinListData,
-    // isError: coinListError,
   } = useQuery({
     queryKey: ["coinList", showFavourites, pageNumber],
     queryFn: () => fetchCoinList(showFavourites ? favourites : [], pageNumber),
@@ -107,36 +107,56 @@ const CoinLisitng: React.FC = () => {
           </button>
         </div>
       </div>
-      {coinListData && <CoinTable coinsList={sortedCoinsList} toggleFavorite={toggleFavorite} isFavourite={isFavourite} />}
-      {!showFavourites && (
-        <nav
-          aria-label="Pagination"
-          className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
-        >
-          <div className="hidden sm:block">
-            <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{(pageNumber - 1) * 10 + 1}</span> to <span className="font-medium">{(pageNumber - 1) * 10 + 10}</span> of{' '}
-              <span className="font-medium">{totalCount}</span> results
-            </p>
-          </div>
-          <div className="flex flex-1 justify-between sm:justify-end">
-            <button
-              type="button"
-              onClick={goToPreviousPage}
-              className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+      {
+      isCoinListDataLoading
+        ? <div className="w-full flex justify-center h-52 items-center"><Loader /></div>
+        : (
+          <div>
+            {showFavourites && favourites.length === 0
+              ? (
+                <div className="w-full flex justify-center h-52 items-center">
+                  <p className="text-base font-semibold">
+                    No Data Found!
+                  </p>
+                </div>
+              )
+              : (
+                <div>
+                  {coinListData && <CoinTable coinsList={sortedCoinsList} toggleFavorite={toggleFavorite} isFavourite={isFavourite} />}
+                </div>
+              )}
+            {!showFavourites && (
+            <nav
+              aria-label="Pagination"
+              className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
             >
-              Previous
-            </button>
-            <button
-              type="button"
-              onClick={goToNextPage}
-              className="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
-            >
-              Next
-            </button>
+              <div className="hidden sm:block">
+                <p className="text-sm text-gray-700">
+                  Showing <span className="font-medium">{(pageNumber - 1) * 10 + 1}</span> to <span className="font-medium">{(pageNumber - 1) * 10 + 10}</span> of{' '}
+                  <span className="font-medium">{totalCount}</span> results
+                </p>
+              </div>
+              <div className="flex flex-1 justify-between sm:justify-end">
+                <button
+                  type="button"
+                  onClick={goToPreviousPage}
+                  className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  onClick={goToNextPage}
+                  className="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+                >
+                  Next
+                </button>
+              </div>
+            </nav>
+            )}
           </div>
-        </nav>
-      )}
+        )
+      }
 
     </div>
   );

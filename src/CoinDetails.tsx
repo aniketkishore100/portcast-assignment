@@ -17,6 +17,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { fetchCoinDetail, fetchCoinHistory } from './services';
 import 'chartjs-adapter-date-fns';
+import Loader from './components/Loader';
 
 // Register chart components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale);
@@ -35,7 +36,6 @@ const CoinDetails = () => {
   const {
     isLoading: priceHistoryLoading,
     data: priceHistory,
-    // isError: coinListError,
   } = useQuery({
     queryKey: ["coinHistory", coinId],
     queryFn: () => fetchCoinHistory(coinId as string),
@@ -60,50 +60,58 @@ const CoinDetails = () => {
   return (
     <div className="h-screen  w-screen px-4 sm:px-6 lg:px-8">
       <div className="mt-10">
-        <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">
-            {coinId?.toUpperCase()}({coinDetailData && coinDetailData.symbol})
-          </h1>
-          <p className="mt-2 text-sm text-gray-700">
-            A detailed view of {coinDetailData && coinDetailData.name} coin.
-          </p>
-        </div>
-        <div className="mt-8 flow-root">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg px-8 py-4">
-                <p className="text-sm font-medium leading-6 text-gray-900">
-                  Rank: {coinDetailData && coinDetailData.rank}
+        {coinDetailDataLoading
+          ? <div className="w-full flex justify-center h-52 items-center"><Loader /></div>
+          : (
+            <div>
+              <div className="sm:flex-auto">
+                <h1 className="text-base font-semibold leading-6 text-gray-900">
+                  {coinId?.toUpperCase()}({coinDetailData && coinDetailData.symbol})
+                </h1>
+                <p className="mt-2 text-sm text-gray-700">
+                  A detailed view of {coinDetailData && coinDetailData.name} coin.
                 </p>
-                <p className="text-sm font-medium leading-6 text-gray-900">
-                  Max Supply: {coinDetailData && Number(coinDetailData.maxSupply || 0).toFixed(2) }
-                </p>
-                <p className="text-sm font-medium leading-6 text-gray-900">
-                  Market Cap(USD): {coinDetailData && Number(coinDetailData.marketCapUsd || 0).toFixed(2) }
-                </p>
-                <p className="text-sm font-medium leading-6 text-gray-900">
-                  Price(USD): {coinDetailData && Number(coinDetailData.priceUsd || 0).toFixed(2) }
-                </p>
-                <div className="flex gap-x-2 text-sm items-center">
-                  <p className=" font-medium leading-6 text-gray-900">
-                    Official Website :
-                  </p>
-                  <a className="text-blue-700" href={coinDetailData && coinDetailData.explorer}>{coinDetailData && coinDetailData.explorer}</a>
-                </div>
-                <p className="text-base font-semibold leading-6 text-gray-900">
-                  Price History
-                </p>
-                {priceHistoryLoading
-                  ? <div />
-                  : (
-                    <div className="w-full h-96">
-                      <Line data={chartData} options={chartOptions} />
+              </div>
+              <div className="mt-8 flow-root">
+                <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                  <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                    <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg px-8 py-4">
+                      <p className="text-sm font-medium leading-6 text-gray-900">
+                        Rank: {coinDetailData && coinDetailData.rank}
+                      </p>
+                      <p className="text-sm font-medium leading-6 text-gray-900">
+                        Max Supply: {coinDetailData && Number(coinDetailData.maxSupply || 0).toFixed(2) }
+                      </p>
+                      <p className="text-sm font-medium leading-6 text-gray-900">
+                        Market Cap(USD): {coinDetailData && Number(coinDetailData.marketCapUsd || 0).toFixed(2) }
+                      </p>
+                      <p className="text-sm font-medium leading-6 text-gray-900">
+                        Price(USD): {coinDetailData && Number(coinDetailData.priceUsd || 0).toFixed(2) }
+                      </p>
+                      <div className="flex gap-x-2 text-sm items-center">
+                        <p className=" font-medium leading-6 text-gray-900">
+                          Official Website :
+                        </p>
+                        <a className="text-blue-700" href={coinDetailData && coinDetailData.explorer}>{coinDetailData && coinDetailData.explorer}</a>
+                      </div>
+                      <div className="w-full h-[1px] bg-gray-400 my-4" />
+                      <p className="text-base font-semibold leading-6 text-gray-900">
+                        Price History
+                      </p>
+                      {priceHistoryLoading
+                        ? <div className="w-full flex justify-center h-52 items-center"><Loader /></div>
+                        : (
+                          <div className="w-full h-96">
+                            <Line data={chartData} options={chartOptions} />
+                          </div>
+                        )}
                     </div>
-                  )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          )}
+
       </div>
     </div>
   );
